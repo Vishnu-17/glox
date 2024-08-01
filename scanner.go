@@ -3,6 +3,8 @@ package main
 import (
 	"errors"
 	"strconv"
+
+	"github.com/vishnu/glox/token"
 )
 
 type Scanner struct {
@@ -12,8 +14,8 @@ type Scanner struct {
 	line    int
 }
 
-func (scanner *Scanner) ScanTokens() []Token {
-	var tokens []Token
+func (scanner *Scanner) ScanTokens() []token.Token {
+	var tokens []token.Token
 	for !scanner.isAtEnd() {
 		scanner.start = scanner.current
 		token, err := scanner.scanToken()
@@ -21,60 +23,60 @@ func (scanner *Scanner) ScanTokens() []Token {
 			tokens = append(tokens, token)
 		}
 	}
-	tokens = append(tokens, Token{tokenType: EOF, lexeme: "", literal: "", line: scanner.line})
+	tokens = append(tokens, token.Token{Type: token.EOF, Lexeme: "", Literal: "", Line: scanner.line})
 	return tokens
 }
 
-func (scanner *Scanner) scanToken() (Token, error) {
+func (scanner *Scanner) scanToken() (token.Token, error) {
 	c := scanner.advance()
 	switch c {
 	case '(':
-		return scanner.addToken(LEFT_PAREN, ""), nil
+		return scanner.addToken(token.LEFT_PAREN, ""), nil
 	case ')':
-		return scanner.addToken(RIGHT_PAREN, ""), nil
+		return scanner.addToken(token.RIGHT_PAREN, ""), nil
 	case '{':
-		return scanner.addToken(LEFT_BRACE, ""), nil
+		return scanner.addToken(token.LEFT_BRACE, ""), nil
 	case '}':
-		return scanner.addToken(RIGHT_BRACE, ""), nil
+		return scanner.addToken(token.RIGHT_BRACE, ""), nil
 	case ',':
-		return scanner.addToken(COMMA, ""), nil
+		return scanner.addToken(token.COMMA, ""), nil
 	case '.':
-		return scanner.addToken(DOT, ""), nil
+		return scanner.addToken(token.DOT, ""), nil
 	case '-':
-		return scanner.addToken(MINUS, ""), nil
+		return scanner.addToken(token.MINUS, ""), nil
 	case '+':
-		return scanner.addToken(PLUS, ""), nil
+		return scanner.addToken(token.PLUS, ""), nil
 	case ';':
-		return scanner.addToken(SEMICOLON, ""), nil
+		return scanner.addToken(token.SEMICOLON, ""), nil
 	case '*':
-		return scanner.addToken(STAR, ""), nil
+		return scanner.addToken(token.STAR, ""), nil
 	case '!':
 		if scanner.match('=') {
-			return scanner.addToken(BANG_EQUAL, ""), nil
+			return scanner.addToken(token.BANG_EQUAL, ""), nil
 		}
-		return scanner.addToken(BANG, ""), nil
+		return scanner.addToken(token.BANG, ""), nil
 	case '=':
 		if scanner.match('=') {
-			return scanner.addToken(EQUAL_EQUAL, ""), nil
+			return scanner.addToken(token.EQUAL_EQUAL, ""), nil
 		}
-		return scanner.addToken(EQUAL, ""), nil
+		return scanner.addToken(token.EQUAL, ""), nil
 	case '<':
 		if scanner.match('=') {
-			return scanner.addToken(LESS_EQUAL, ""), nil
+			return scanner.addToken(token.LESS_EQUAL, ""), nil
 		}
-		return scanner.addToken(LESS, ""), nil
+		return scanner.addToken(token.LESS, ""), nil
 	case '>':
 		if scanner.match('=') {
-			return scanner.addToken(GREATER_EQUAL, ""), nil
+			return scanner.addToken(token.GREATER_EQUAL, ""), nil
 		}
-		return scanner.addToken(GREATER, ""), nil
+		return scanner.addToken(token.GREATER, ""), nil
 	case '/':
 		if scanner.match('/') {
 			for scanner.peek() != '\n' && !scanner.isAtEnd() {
 				scanner.advance()
 			}
 		} else {
-			return scanner.addToken(SLASH, ""), nil
+			return scanner.addToken(token.SLASH, ""), nil
 		}
 	case ' ':
 	case '\t':
@@ -83,24 +85,24 @@ func (scanner *Scanner) scanToken() (Token, error) {
 		scanner.line++
 	case '"':
 		s := scanner.getString()
-		return scanner.addToken(STRING, s), nil
+		return scanner.addToken(token.STRING, s), nil
 	default:
 		if isDigit(c) {
 			num := scanner.getNumber()
-			return scanner.addToken(NUMBER, num), nil
+			return scanner.addToken(token.NUMBER, num), nil
 		} else if isAlpha(c) {
 			scanner.getIdentifier()
 			tokenType, ok := keywords[scanner.source[scanner.start:scanner.current]]
 			if ok {
 				return scanner.addToken(tokenType, ""), nil
 			} else {
-				return scanner.addToken(IDENTIFIER, ""), nil
+				return scanner.addToken(token.IDENTIFIER, ""), nil
 			}
 		} else {
 			errorReport(uint(scanner.line), "Unexpected token")
 		}
 	}
-	return Token{}, errors.New("not a token")
+	return token.Token{}, errors.New("not a token")
 }
 
 func (scanner *Scanner) moveCurrent() {
@@ -116,8 +118,8 @@ func (scanner *Scanner) advance() byte {
 	return scanner.source[scanner.current]
 }
 
-func (scanner *Scanner) addToken(tokenType TokenType, literal any) Token {
-	return Token{tokenType: tokenType, lexeme: scanner.source[scanner.start:scanner.current], line: scanner.line, literal: literal}
+func (scanner *Scanner) addToken(tokenType token.TokenType, literal any) token.Token {
+	return token.Token{Type: tokenType, Lexeme: scanner.source[scanner.start:scanner.current], Line: scanner.line, Literal: literal}
 }
 
 func (scanner *Scanner) match(expected rune) bool {
@@ -182,21 +184,21 @@ func (scanner *Scanner) getIdentifier() {
 	}
 }
 
-var keywords = map[string]TokenType{
-	"and":    AND,
-	"class":  CLASS,
-	"else":   ELSE,
-	"false":  FALSE,
-	"for":    FOR,
-	"fun":    FUN,
-	"if":     IF,
-	"nil":    NIL,
-	"or":     OR,
-	"print":  PRINT,
-	"return": RETURN,
-	"super":  SUPER,
-	"this":   THIS,
-	"true":   TRUE,
-	"var":    VAR,
-	"while":  WHILE,
+var keywords = map[string]token.TokenType{
+	"and":    token.AND,
+	"class":  token.CLASS,
+	"else":   token.ELSE,
+	"false":  token.FALSE,
+	"for":    token.FOR,
+	"fun":    token.FUN,
+	"if":     token.IF,
+	"nil":    token.NIL,
+	"or":     token.OR,
+	"print":  token.PRINT,
+	"return": token.RETURN,
+	"super":  token.SUPER,
+	"this":   token.THIS,
+	"true":   token.TRUE,
+	"var":    token.VAR,
+	"while":  token.WHILE,
 }

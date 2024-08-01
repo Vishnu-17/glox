@@ -1,7 +1,8 @@
-package main
+package token
 
 import "fmt"
 
+//go:generate -type TokenType
 type TokenType int
 
 const (
@@ -65,12 +66,12 @@ func (t TokenType) String() string {
 }
 
 type Token struct {
-	tokenType TokenType
-	lexeme    string
-	literal   any
-	line      int
+	Type    TokenType
+	Lexeme  string
+	Literal any
+	Line    int
 }
 
 func (token *Token) ToString() {
-	fmt.Printf("type: %s, lexeme: %s, lieral: %s, line: %d\n", token.tokenType.String(), token.lexeme, token.literal, token.line)
+	fmt.Printf("type: %s, lexeme: %s, lieral: %s, line: %d\n", token.Type.String(), token.Lexeme, token.Literal, token.Line)
 }

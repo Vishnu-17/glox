@@ -4,19 +4,25 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+
+	"github.com/vishnu/glox/parser"
+	"github.com/vishnu/glox/token"
 )
 
 func main() {
+	// cmdArg := os.Args[1:]
+	// if len(cmdArg) > 1 {
+	// 	err := fmt.Errorf("error passing multiple args %q", cmdArg)
+	// 	fmt.Println(err)
+	// } else if len(cmdArg) == 1 {
+	// 	runFile(cmdArg[0])
+	// } else {
+	// 	runPrompt()
+	// }
+	x := parser.Unary{Operator: token.Token{Type: token.MINUS, Lexeme: "-", Literal: nil, Line: 1}, Right: &parser.Literal{Value: 123}}
+	y := parser.Binary{Left: &x, Operator: token.Token{Type: token.STAR, Lexeme: "*", Literal: nil, Line: 1}, Right: &parser.Grouping{Expression: &parser.Literal{Value: 45.67}}}
+	fmt.Printf("x: %v\n", parser.AstPrinter(&y))
 
-	cmdArg := os.Args[1:]
-	if len(cmdArg) > 1 {
-		err := fmt.Errorf("error passing multiple args %q", cmdArg)
-		fmt.Println(err)
-	} else if len(cmdArg) == 1 {
-		runFile(cmdArg[0])
-	} else {
-		runPrompt()
-	}
 }
 
 func runFile(filePath string) {
